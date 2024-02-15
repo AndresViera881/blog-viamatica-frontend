@@ -1,0 +1,108 @@
+﻿@page "/detalle-publicaciones/{PublicacionId:int}"
+
+@inject IJSRuntime JsRuntime
+@inject IPublicacionService _service;
+@inject NavigationManager navigationManager;
+
+@using Viamatica.Blog.WASM.Modelos
+@using Viamatica.Blog.WASM.Servicios.IServicio;
+
+
+<PageTitle>Detalle publicacion</PageTitle>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-10 offset-2 text-end">
+            <img src="@Publicacion.RutaImagen" class="img-fluid" width="200" height="200" />
+        </div>
+
+        <p>Contenido: @Publicacion.Contenido</p>
+        <h4>Autor: @Publicacion.Autor</h4>
+        <h5>Fecha publicación: @Publicacion.FechaPublicacion</h5>
+
+
+        <div class="card">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col-7">
+                        <h4 class="card-title text-dark">Comentarios</h4>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <EditForm Model="CrearComentario" OnValidSubmit="@( () => ManejadorOnCrearComentario())">
+                    <DataAnnotationsValidator></DataAnnotationsValidator>
+                    <ValidationSummary></ValidationSummary>
+                    <div class="container">
+
+
+                        <input type="hidden" @bind="@Publicacion.PublicacionId" />
+
+ 
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-2">
+                                    <label>Comentario:</label>
+                                </div>
+                                <div class="-col-6">
+                                    <InputText @bind-Value="CrearComentario.Contenido" class="form-control" placeholder="Ingresa el comentario"></InputText>
+                                    <ValidationMessage For="() => CrearComentario.Contenido"></ValidationMessage>
+                                </div>
+                            </div>
+                        </div>
+                        <br />
+
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-2">
+                                    <button type="submit" class="btn btn-success"><i class="bi bi-gear-fill"></i>&nbsp; Enviar</button>
+                                </div>
+
+                                <div class="col-2">
+                                    <NavLink href="@($"detalle-comentarios/{Publicacion.PublicacionId}")">
+                                        Ve Comentarios
+                                    </NavLink>
+                                </div>
+
+                                <div class="col-2">
+                                    <NavLink href="@($"usuario-publico/{Publicacion.PublicacionId}")">
+                                        Usuario quien publico
+                                    </NavLink>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+                </EditForm>
+
+            </div>
+        </div>
+
+        <NavLink href="/" class="btn btn-primary">Regresar</NavLink>
+    </div>
+
+</div>
+
+@code {
+
+    private Viamatica.Blog.WASM.Modelos.Publicacion Publicacion = new Viamatica.Blog.WASM.Modelos.Publicacion();
+    [Parameter]
+    public int PublicacionId { get; set; }
+
+    private Comentario CrearComentario { get; set; } = new Comentario();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Publicacion = await _service.GetByIdPublicacion(PublicacionId);
+    }
+
+    private async Task ManejadorOnCrearComentario()
+    {
+        CrearComentario.PublicacionId = PublicacionId;
+        var crearComentario = await _service.PostComentario(CrearComentario);
+        await JsRuntime.ToastrSuccess("El comentario se ha creado en el sistema");
+        navigationManager.NavigateTo("/");
+    }
+}

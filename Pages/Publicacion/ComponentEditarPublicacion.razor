@@ -1,0 +1,151 @@
+﻿@page "/editar-publicacion/{publicacionId:int}"
+@inject IPublicacionService _service;
+@inject IJSRuntime JsRuntime;
+@inject NavigationManager navigationManager;
+@attribute [Authorize]
+
+@using Microsoft.AspNetCore.Authorization
+@using Viamatica.Blog.WASM.Modelos;
+@using Viamatica.Blog.WASM.Servicios.IServicio;
+@using System.Net.Http.Headers;
+
+<h1 class="text-center">Editar Publicación</h1>
+
+<div class="card">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-7">
+                <h4 class="card-title text-dark">Publicación</h4>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <EditForm Model="EditarPublicacion" OnValidSubmit="@( () => ManejadorOnEditarPublicacion())">
+            <DataAnnotationsValidator></DataAnnotationsValidator>
+            <ValidationSummary></ValidationSummary>
+            <div class="container">
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-2">
+                            <label>Título:</label>
+                        </div>
+                        <div class="-col-6">
+                            <InputText @bind-Value="EditarPublicacion.Titulo" class="form-control" placeholder="Ingresa el título"></InputText>
+                            <ValidationMessage For="() => EditarPublicacion.Titulo"></ValidationMessage>
+                        </div>
+                    </div>
+                </div>
+                <br />
+
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-2">
+                            <label>Contenido:</label>
+                        </div>
+                        <div class="-col-6">
+                            <InputText @bind-Value="EditarPublicacion.Contenido" class="form-control" placeholder="Ingresa el contenido"></InputText>
+                            <ValidationMessage For="() => EditarPublicacion.Contenido"></ValidationMessage>
+                        </div>
+                    </div>
+                </div>
+                <br />
+
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-2">
+                            <label>Autor:</label>
+                        </div>
+                        <div class="-col-6">
+                            <InputText @bind-Value="EditarPublicacion.Autor" class="form-control" placeholder="Ingresa el autor"></InputText>
+                            <ValidationMessage For="() => EditarPublicacion.Autor"></ValidationMessage>
+                        </div>
+                    </div>
+                </div>
+                <br />
+
+                <div class="form-group">
+                    <div class="row">
+
+                        <div class="col-6">
+                        <h4>Imagen</h4>
+                            <div class="imagen-post mb-3" style="background: url('@EditarPublicacion.RutaImagen'); width:300px; height:170px; background-size:cover">
+
+                            </div>
+                        </div>
+
+
+                        <div class="col-6">
+                            <h4>Imagen Post</h4>
+                            <InputFile OnChange="@ManejadorOnSubidaArchivo"></InputFile>
+                            <br />
+                            @if (imagenPost != null)
+                            {
+                                <div>
+                                    <img src="@imagenPost" style="width:300px">
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <br />
+
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-2">
+                            <button type="submit" class="btn btn-success"><i class="bi bi-gear-fill"></i>&nbsp; Editar</button>
+                        </div>
+                        <div class="col-6">
+                            <NavLink href="publicaciones" class="btn btn-secondary"><i class="bi bi-arrow-left-circle-fill"></i>&nbsp; Regresar</NavLink>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </EditForm>
+
+    </div>
+</div>
+
+@code {
+    
+    private Publicacion EditarPublicacion { get; set; } = new Publicacion();
+    [Parameter]
+    public int publicacionId { get; set; }
+
+    [Parameter]
+    public string? imagenPost { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnChange { get; set; }
+
+protected override async Task OnInitializedAsync()
+    {
+        EditarPublicacion = await _service.GetByIdPublicacion(publicacionId);
+    }
+
+    private async Task ManejadorOnEditarPublicacion()
+    {
+        EditarPublicacion.RutaImagen = imagenPost;
+        var editar = await _service.PutPublicacion(publicacionId, EditarPublicacion);
+        await JsRuntime.ToastrSuccess("La publicacion se ha modificado en el sistema");
+        navigationManager.NavigateTo("publicaciones");
+    }
+
+    private async Task ManejadorOnSubidaArchivo(InputFileChangeEventArgs e)
+    {
+        var imageFile = e.File;
+        if (imageFile != null)
+        {
+            var resizedFile = await imageFile.RequestImageFileAsync("image/png", 1000, 700);
+            using (var ms = resizedFile.OpenReadStream(resizedFile.Size))
+            {
+                var content = new MultipartFormDataContent();
+                content.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data");
+                content.Add(new StreamContent(ms, Convert.ToInt32(resizedFile.Size)), "image", imageFile.Name);
+                imagenPost = await _service.UploadImage(content);
+                await OnChange.InvokeAsync(imagenPost);
+            }
+        }
+    }
+}
+

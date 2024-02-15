@@ -1,0 +1,25 @@
+﻿@page "/usuario-publico/{PublicacionId:int}"
+
+@inject IJSRuntime JsRuntime
+@inject IPublicacionService _service;
+@inject NavigationManager navigationManager;
+
+@using Viamatica.Blog.WASM.Modelos
+@using Viamatica.Blog.WASM.Servicios.IServicio;
+
+<div class="container">
+    <div class="row">
+        <p>Usuario quien publico: @Publicacion.Usuario</p>
+    </div>
+</div>
+
+@code {
+    private Viamatica.Blog.WASM.Modelos.Publicacion Publicacion = new Viamatica.Blog.WASM.Modelos.Publicacion();
+    [Parameter]
+    public int PublicacionId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Publicacion = await _service.GetByIdPublicacion(PublicacionId);
+    }
+}

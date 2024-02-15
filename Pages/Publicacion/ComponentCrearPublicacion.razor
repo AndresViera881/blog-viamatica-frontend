@@ -1,0 +1,132 @@
+﻿@page "/crear-publicacion"
+@inject IPublicacionService _service;
+@inject IJSRuntime JsRuntime;
+@inject NavigationManager navigationManager;
+@attribute [Authorize]
+
+@using Microsoft.AspNetCore.Authorization
+@using Viamatica.Blog.WASM.Modelos;
+@using Viamatica.Blog.WASM.Servicios.IServicio;
+@using System.Net.Http.Headers;
+
+<h1 class="text-center">Crear Publicación</h1>
+
+<div class="card">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-7">
+                <h4 class="card-title text-dark">Publicación</h4>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <EditForm Model="CrearPublicacion" OnValidSubmit="@( () => ManejadorOnCrearPublicacion())">
+            <DataAnnotationsValidator></DataAnnotationsValidator>
+            <ValidationSummary></ValidationSummary>
+            <div class="container">
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-2">
+                            <label>Título:</label>
+                        </div>
+                        <div class="-col-6">
+                            <InputText @bind-Value="CrearPublicacion.Titulo" class="form-control" placeholder="Ingresa el título"></InputText>
+                            <ValidationMessage For="() => CrearPublicacion.Titulo"></ValidationMessage>
+                        </div>
+                    </div>
+                </div>
+                <br />
+
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-2">
+                            <label>Contenido:</label>
+                        </div>
+                        <div class="-col-6">
+                            <InputText @bind-Value="CrearPublicacion.Contenido" class="form-control" placeholder="Ingresa el contenido"></InputText>
+                            <ValidationMessage For="() => CrearPublicacion.Contenido"></ValidationMessage>
+                        </div>
+                    </div>
+                </div>
+                <br />
+
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-2">
+                            <label>Autor:</label>
+                        </div>
+                        <div class="-col-6">
+                            <InputText @bind-Value="CrearPublicacion.Autor" class="form-control" placeholder="Ingresa el autor"></InputText>
+                            <ValidationMessage For="() => CrearPublicacion.Autor"></ValidationMessage>
+                        </div>
+                    </div>
+                </div>
+                <br />
+
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-6">
+                            <h4>Imagen Post</h4>
+                            <InputFile OnChange="@ManejadorOnSubidaArchivo"></InputFile>
+                            <br />
+                            @if (imagenPost != null)
+                            {
+                                <div>
+                                    <img src="@imagenPost" style="width:300px">
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <br />
+
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-2">
+                            <button type="submit" class="btn btn-success"><i class="bi bi-gear-fill"></i>&nbsp; Guardar</button>
+                        </div>
+                        <div class="col-6">
+                            <NavLink href="publicaciones" class="btn btn-secondary"><i class="bi bi-arrow-left-circle-fill"></i>&nbsp; Regresar</NavLink>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </EditForm>
+
+    </div>
+</div>
+
+@code {
+    private Publicacion CrearPublicacion { get; set; } = new Publicacion();
+    [Parameter]
+    public string? imagenPost { get; set; }
+    [Parameter]
+    public EventCallback<string> OnChange { get; set; }
+
+    private async Task ManejadorOnCrearPublicacion()
+    {
+        CrearPublicacion.RutaImagen = imagenPost;
+        var crearPost = await _service.PostPublicacion(CrearPublicacion);
+        await JsRuntime.ToastrSuccess("La publicacion se ha creado en el sistema");
+        navigationManager.NavigateTo("publicaciones");
+    }
+
+    private async Task ManejadorOnSubidaArchivo(InputFileChangeEventArgs e)
+    {
+        var imageFile = e.File;
+        if (imageFile != null)
+        {
+            var resizedFile = await imageFile.RequestImageFileAsync("image/png", 1000, 700);
+            using (var ms = resizedFile.OpenReadStream(resizedFile.Size))
+            {
+                var content = new MultipartFormDataContent();
+                content.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data");
+                content.Add(new StreamContent(ms, Convert.ToInt32(resizedFile.Size)), "image", imageFile.Name);
+                imagenPost = await _service.UploadImage(content);
+                await OnChange.InvokeAsync(imagenPost);
+            }
+        }
+    }
+}
+

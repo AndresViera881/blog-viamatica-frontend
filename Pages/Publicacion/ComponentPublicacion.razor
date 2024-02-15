@@ -1,0 +1,114 @@
+﻿@page "/publicaciones"
+
+@inject IPublicacionService _service;
+@inject IJSRuntime JsRuntime;
+@attribute [Authorize]
+
+@using Microsoft.AspNetCore.Authorization
+@using Viamatica.Blog.WASM.Modelos;
+@using Viamatica.Blog.WASM.Servicios.IServicio
+
+<div class="card">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-8">
+                <h4 class="card-title text-dark">Lista de publicaciones</h4>
+            </div>
+
+            <div class="col-4 text-end">
+                <NavLink class="btn btn-success" href="crear-publicacion">
+                        <i class="fas fa-plus"></i> Crear publicación
+                </NavLink>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body">
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>Titulo</th>
+                    <th>Contenido</th>
+                    <th>Autor</th>
+                    <th>Fecha de publicación</th>
+                    <th>Fecha de actualización</th>
+                    <th>Imagen</th>
+                    <th>Usuario</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @if(Publicaciones.Count() > 0)
+                {
+                    @foreach (var publicacion in Publicaciones)
+                    {
+                        <tr>
+                            @publicacion.Titulo
+                            <td>@publicacion.Contenido</td>
+                            <td>@publicacion.Autor</td>
+                            <td>@publicacion.FechaPublicacion</td>
+                            <td>@publicacion.FechaActualizacionPublicacion</td>
+                            <td style="text-align:center"><img class="img-fluid" src="@publicacion.RutaImagen" alt="@publicacion.Titulo" width="50" height="50" /></td>
+                            <td>@publicacion.Usuario</td>
+                            <td>
+                                <NavLink class="btn btn-warning" href="@($"editar-publicacion/{publicacion.PublicacionId}")">
+                                    <i class="bi bi-gear-fill"></i> 
+                                </NavLink>
+
+                                <button class="btn btn-danger" @onclick="() => ManejadorOnBorrar(publicacion.PublicacionId)">
+                                    <i class="bi bi-trash-fill"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="8">Cargando...</td>
+                    </tr>
+                }
+            </tbody>
+           
+        </table>
+    </div>
+</div>
+
+<ComponentConfirmacionBorrar ProcesandoComponentePadre="estaProcesando" CambioConfirmacion="ClickConfirmacionBorrado"></ComponentConfirmacionBorrar>
+
+@code {
+
+    public IEnumerable<Publicacion> Publicaciones { get; set; } = new List<Publicacion>();
+
+    //Para borrar
+    private bool estaProcesando { get; set; } = false;
+    private int? borrarPublicacionId { get; set; } = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Publicaciones = await _service.GetPublicaciones();
+    }
+
+    public async Task ManejadorOnBorrar(int publicacionId)
+    {
+        borrarPublicacionId = publicacionId;
+        await JsRuntime.InvokeVoidAsync("MostrarModalConfirmacionBorrado");
+    }
+
+    public async Task ClickConfirmacionBorrado(bool valor)
+    {
+        estaProcesando = true;
+        if (valor && borrarPublicacionId != null)
+        {
+            
+            await _service.DeletePublicacion(borrarPublicacionId.Value);
+            await JsRuntime.ToastrSuccess("La publicacion se ha eliminado correctamente!");
+            Publicaciones = await _service.GetPublicaciones();
+            
+        }
+        await JsRuntime.InvokeVoidAsync("OcultarModalConfirmacionBorrado");
+        estaProcesando = false;
+    }
+
+}

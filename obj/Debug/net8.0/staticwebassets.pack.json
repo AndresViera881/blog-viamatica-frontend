@@ -1,0 +1,65 @@
+{
+  "Files": [
+    {
+      "Id": "D:\\Visual Studio\\Net8\\Viamatica.Blog.WASM\\bin\\Debug\\net8.0\\wwwroot\\_framework\\blazor.webassembly.js",
+      "PackagePath": "staticwebassets\\_framework\\blazor.webassembly.js"
+    },
+    {
+      "Id": "D:\\Visual Studio\\Net8\\Viamatica.Blog.WASM\\obj\\Debug\\net8.0\\compressed\\mnxb2k9slx.gz",
+      "PackagePath": "staticwebassets\\_framework\\blazor.webassembly.js.gz"
+    },
+    {
+      "Id": "D:\\Visual Studio\\Net8\\Viamatica.Blog.WASM\\obj\\Debug\\net8.0\\scopedcss\\bundle\\Viamatica.Blog.WASM.styles.css",
+      "PackagePath": "staticwebassets\\Viamatica.Blog.WASM.styles.css"
+    },
+    {
+      "Id": "D:\\Visual Studio\\Net8\\Viamatica.Blog.WASM\\wwwroot\\css\\app.css",
+      "PackagePath": "staticwebassets\\css\\app.css"
+    },
+    {
+      "Id": "D:\\Visual Studio\\Net8\\Viamatica.Blog.WASM\\wwwroot\\css\\bootstrap\\bootstrap.min.css",
+      "PackagePath": "staticwebassets\\css\\bootstrap\\bootstrap.min.css"
+    },
+    {
+      "Id": "D:\\Visual Studio\\Net8\\Viamatica.Blog.WASM\\wwwroot\\css\\bootstrap\\bootstrap.min.css.map",
+      "PackagePath": "staticwebassets\\css\\bootstrap\\bootstrap.min.css.map"
+    },
+    {
+      "Id": "D:\\Visual Studio\\Net8\\Viamatica.Blog.WASM\\wwwroot\\favicon.png",
+      "PackagePath": "staticwebassets\\favicon.png"
+    },
+    {
+      "Id": "D:\\Visual Studio\\Net8\\Viamatica.Blog.WASM\\wwwroot\\icon-192.png",
+      "PackagePath": "staticwebassets\\icon-192.png"
+    },
+    {
+      "Id": "D:\\Visual Studio\\Net8\\Viamatica.Blog.WASM\\wwwroot\\index.html",
+      "PackagePath": "staticwebassets\\index.html"
+    },
+    {
+      "Id": "D:\\Visual Studio\\Net8\\Viamatica.Blog.WASM\\wwwroot\\js\\common.js",
+      "PackagePath": "staticwebassets\\js\\common.js"
+    },
+    {
+      "Id": "D:\\Visual Studio\\Net8\\Viamatica.Blog.WASM\\wwwroot\\sample-data\\weather.json",
+      "PackagePath": "staticwebassets\\sample-data\\weather.json"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.Viamatica.Blog.WASM.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.build.Viamatica.Blog.WASM.props",
+      "PackagePath": "build\\Viamatica.Blog.WASM.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildMultiTargeting.Viamatica.Blog.WASM.props",
+      "PackagePath": "buildMultiTargeting\\Viamatica.Blog.WASM.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildTransitive.Viamatica.Blog.WASM.props",
+      "PackagePath": "buildTransitive\\Viamatica.Blog.WASM.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

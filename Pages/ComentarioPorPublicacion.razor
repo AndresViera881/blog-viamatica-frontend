@@ -1,0 +1,43 @@
+﻿@page "/detalle-comentarios/{PublicacionId:int}"
+
+@inject IJSRuntime JSRuntime
+@inject IPublicacionService _service;
+
+@using Viamatica.Blog.WASM.Servicios.IServicio
+
+<PageTitle>Comentarios por publicación</PageTitle>
+
+<div class="row">
+    @foreach (var comentario in Comentarios)
+    {
+        <div class="col-3 mt-3">
+            <div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="text-center">@comentario.Contenido</h3>
+                    </div>
+
+
+                    <div class="card-footer">
+                        <NavLink href="@($"detalle-publicaciones/{comentario.PublicacionId}")">
+                            Regresar
+                        </NavLink>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+
+    private IEnumerable<Viamatica.Blog.WASM.Modelos.Comentario> Comentarios = new List<Viamatica.Blog.WASM.Modelos.Comentario>();
+    [Parameter]
+    public int PublicacionId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Comentarios = await _service.GetComentariosByPublicacion(PublicacionId);
+    }
+
+}
